@@ -1,8 +1,7 @@
 export interface RoleDataDTO {
-  team: boolean;
-  users: boolean;
-  integrations: boolean;
-  channels: boolean;
+  isExco: boolean;
+  member: boolean;
+  principal: boolean;
 }
 
 export interface UpdateRoleDTO {

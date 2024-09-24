@@ -15,6 +15,6 @@ import { Access } from 'src/access/entities/access.entity';
     ]),
   ],
   providers: [UserService, ConfigService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, UserService],
 })
 export class UsersModule {}

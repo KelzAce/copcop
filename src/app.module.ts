@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApiConfigService } from './shared/services/api-config.service';
-// import { SharedModule } from './shared/shared.module';
 // import configuration from './shared/config/configuration';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -18,6 +17,8 @@ import { UsersModule } from './user/user.module';
 import { AccessModule } from './access/access.module';
 import { SharedModule } from './shared/services/shared.module';
 import configuration from './shared/config/configuration';
+import { KycModule } from './kyc/kyc.module';
+import { LoansModule } from './loans/loans.module';
 
 
 @Module({
@@ -56,7 +57,8 @@ import configuration from './shared/config/configuration';
     // NotificationModule,
     // GatewayModule,
    
-    // KycModule,
+    KycModule,
+    LoansModule,
  
   ],
   controllers: [AppController],

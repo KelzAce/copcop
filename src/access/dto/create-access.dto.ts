@@ -1,21 +1,11 @@
 import { IsBoolean, IsObject } from 'class-validator';
-// import { Merchant } from '../../shared/entities/merchant.entity';
 import { RoleDataDTO } from './role.dto';
+import { Cooperative } from 'src/shared/entities/cooperative.entity';
 
 export class CreateAccessDto {
-  // merchant: Merchant;
-
-  @IsBoolean()
-  isOwner: boolean;
 
   @IsObject()
-  principalRole: RoleDataDTO;
-
-  @IsObject()
-  adminstratorRole: RoleDataDTO;
-
-  @IsObject()
-  supervisorRole: RoleDataDTO;
+  isExco: RoleDataDTO;
 
   @IsObject()
   othersRole: RoleDataDTO;

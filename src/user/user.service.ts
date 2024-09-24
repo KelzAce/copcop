@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { EntityManager, FindOptionsWhere, Repository } from 'typeorm';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-
 import { Role } from './entities/roles.enum';
 import { User } from './entities/user.entity';
 import { Cooperative } from 'src/shared/entities/cooperative.entity';
@@ -26,50 +25,29 @@ export class UserService {
     data: Partial<CreateUserDto>,
     transactionManager:  EntityManager,
   ): Promise<User> {
-    // const countryRepo = transactionManager.getRepository(CountryCode);
     const userRepo = transactionManager.getRepository(User);
-    // const walletRepo = transactionManager.getRepository(Wallet);
     const cooperativeRepo = transactionManager.getRepository(Cooperative);
     const accessRepo = transactionManager.getRepository(Access);
 
-    const { cooperative_name, country_code, ...rest } = data;
-    // const countryData = byIso(data.country_code.toUpperCase());
+    const { first_name,  ...rest } = data;
 
-    // let countryCode = await countryRepo.findOneBy({
-    //   country_name: countryData.country,
+    // const cooperative = cooperativeRepo.create({
+    //   cooperative_name, 
+    //   slug: slugify(cooperative_name)
     // });
 
-    // if (!countryCode) {
-    //   countryCode = countryRepo.create({
-    //     code: country_code,
-    //     continent_name: countryData.continent,
-    //     country_name: countryData.country,
-    //   });
-    //   await countryRepo.save(countryCode);
-    // }
-
-    const cooperative = cooperativeRepo.create({
-      // cooperative_name,
-      // slug: slugify(cooperative_name),
-      // countryCode,
-    });
-
-    await cooperativeRepo.save(cooperative);
-
-    // const currency = countryData.country === 'Nigeria' ? 'NGN' : 'USD';
+    // await cooperativeRepo.save(cooperative);
 
     const user = userRepo.create({
       ...rest,
-      cooperative,
-      role: Role.PRINCIPAL,
+      // cooperative,
+      role: Role.MEMBER,
     });
 
     await accessRepo.save({
       cooperative: user.cooperative,
-      isOwner: true,
-      principalRole: defaultPrincipalAccess,
-      adminstratorRole: defaultAccess,
-      supervisorRole: defaultAccess,
+      isPrincipal: true,
+      isExcoRole: defaultPrincipalAccess,
       othersRole: defaultAccess,
     });
 
@@ -80,7 +58,7 @@ export class UserService {
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
-      where: { email, deletedAt: null },
+      where: { email, deleted_at: null },
       relations: ['cooperative'],
     });
     return user;

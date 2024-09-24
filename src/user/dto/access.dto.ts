@@ -1,15 +1,13 @@
 import { RoleDataDTO } from '../../access/dto/role.dto';
 
 export const defaultAccess: RoleDataDTO = {
-  team: false,
-  users: false,
-  integrations: false,
-  channels: false,
+  isExco: false,
+  member: true,
+  principal: false
 };
 
 export const defaultPrincipalAccess: RoleDataDTO = {
-  team: true,
-  users: true,
-  integrations: true,
-  channels: true,
+  isExco: true,
+  member: false,
+  principal: true,
 };

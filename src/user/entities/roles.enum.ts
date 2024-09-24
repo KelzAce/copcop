@@ -4,5 +4,5 @@ export enum Role {
   PRESIDENT = 'president',
   FINANCIAL_SECRETARY = 'financial_secretary',
   SECRETARY = 'secretary',
-  MEMBER = 'secretary'
+  MEMBER = 'member'
 }

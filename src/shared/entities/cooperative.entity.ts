@@ -2,12 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
-  OneToMany,
+  JoinColumn,
+  ManyToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-
+import { Access } from 'src/access/entities/access.entity';
+import { IsOptional } from 'class-validator';
 
 @Entity('cooperative')
 export class Cooperative {
@@ -17,12 +19,31 @@ export class Cooperative {
   @Column('varchar', { nullable: false, unique: true })
   cooperative_name: string;
 
-  @CreateDateColumn({
-    type: 'timestamp',
+
+  @Column('varchar')
+  @OneToOne(() => Access)
+  @JoinColumn({ name: 'access', referencedColumnName: 'id' })
+  access: Access;
+
+  @Column('varchar', {default: false, nullable: true})
+  @ManyToMany(() => User, (user) => user.cooperative)
+  users: User[];
+
+  @Column('bool', { default: false, nullable: true })
+  @IsOptional()
+  status: boolean
+
+  @Column('timestamp', {
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
     name: 'created_at',
   })
-  createdAt!: Date;
+  created_at: Date;
 
-  @OneToMany(() => User, (user) => user.cooperative)
-  users: User[];
+  @Column('timestamp', {
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'updated_at',
+  })
+  updated_at: Date;
 }

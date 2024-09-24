@@ -1,4 +1,6 @@
-import { Cooperative } from '../../shared/entities/cooperative.entity';
+import { Cooperative } from 'src/shared/entities/cooperative.entity';
+import { User } from 'src/user/entities/user.entity';
+
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -16,22 +18,15 @@ export class Access {
   @JoinColumn({ name: 'cooperativeId', referencedColumnName: 'id' })
   cooperative: Cooperative;
 
-  @Column({
-    type: 'json',
-    nullable: false,
-  })
-  principalRole: Record<string, any>;
+  @Column('varchar', { default: false, nullable: true })
+  @OneToOne(() => User, (user) => user.access)
+  users: User
 
   @Column({
     type: 'json',
     nullable: false,
   })
-  adminstratorRole: Record<string, any>;
-  @Column({
-    type: 'json',
-    nullable: false,
-  })
-  supervisorRole: Record<string, any>;
+  isExcoRole: Record<string, any>;
   @Column({
     type: 'json',
     nullable: false,

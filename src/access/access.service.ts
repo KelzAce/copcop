@@ -37,8 +37,8 @@ export class AccessService {
   async updateRole(body: UpdateRoleDTO, user: User) {
     const role = `${body.role}Role`;
     const newAdminRole = await this.getQueryBuilder()
-      .where('cooperativeId.id = :cooperativeId', {
-        cooperativeId: user.cooperative.id,
+      .where('cooperative.id = :cooperativeId', {
+        cooperativeId: user.cooperative,
       })
       .getOne();
     const result = await this.accessRepository.save({

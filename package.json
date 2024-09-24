@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start", 
+    "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -18,15 +18,13 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "npm run build && typeorm -d dist/src/database/data-source.js",
-    "migration:generate": "npm run typeorm -- migration:generate",
-    "migration:create": "npm run typeorm -- migration:create",
-    "migration:revert": "npm run typeorm -- migration:revert",
-    "migration:run": "npm run typeorm -- migration:run",
-    "migration:show": "npm run typeorm -- migration:show",
-    "migration:drop": "npm run typeorm -- migration:drop",
-    "schema:sync": "npm run typeorm schema:sync",
-    "schema:drop": "npm run typeorm schema:drop"
+    "migration:create": "yarn run typeorm -- migration:create",
+    "migration:revert": "yarn run typeorm_local -- migration:revert",
+    "migration:run": "yarn run typeorm_local -- migration:run",
+    "migration:show": "yarn run typeorm_local -- migration:show",
+    "migration:drop": "yarn run typeorm_local -- migration:drop",
+    "migration:generate": "yarn run typeorm -- migration:generate",
+    "typeorm_local": "yarn run build && typeorm -d dist/database/data-source.js"
   },
   "dependencies": {
     "@eslint/config-array": "^0.18.0",

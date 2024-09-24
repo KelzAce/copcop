@@ -5,14 +5,13 @@ import { AccessController } from './access.controller';
 import { AccessService } from './access.service';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
-import { Cooperative } from '../shared/entities/cooperative.entity';
-
+import { Cooperative } from 'src/shared/entities/cooperative.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      User,
-      Cooperative,
       Access,
+      User,
+     Cooperative
     ]),
   ],
   controllers: [AccessController],

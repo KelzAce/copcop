@@ -27,7 +27,6 @@ import {
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
-// import { ApikeyService } from './../apikey/apikey.service';
 import {
   IHttpResponse,
   IJwtPayload,
@@ -43,6 +42,7 @@ import { Role } from '../user/entities/roles.enum';
 import { DbTransactionFactory } from '../shared/services/TransactionManager/TransactionManager';
 import { AuthUser } from '../shared/decorators/auth-user.decorator';
 import { ACGuard } from 'nest-access-control';
+import { SendChampService } from 'src/shared/services/sendchamp.service';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -56,7 +56,7 @@ export class AuthController {
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    // private apikeyService: ApikeyService,
+    private sendChampService: SendChampService,
     private readonly transactionRunner: DbTransactionFactory,
   ) {
     this.serverUrl = this.configService.get('serverAppUrl');
@@ -84,15 +84,6 @@ export class AuthController {
         throw new BadRequestException('Credentials already in use');
       }
 
-      const cooperativeName = await this.authService.findMerchant(
-        body.cooperative_name,
-      );
-      if (cooperativeName) {
-        throw new BadRequestException(
-          'You can not create an account with this merchant name',
-        );
-      }
-
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(body.password, salt);
 
@@ -100,35 +91,17 @@ export class AuthController {
 
       user = await this.userService.create(body, transactionManager);
 
-      // await this.sendBirdService.createAccount({
-      //   userId: user.id,
-      //   nickName: body.full_name,
-      //   profileUrl: '',
-      //   issueAccessToken: false,
-      //   metadata: {
-      //     role: Role.PRINCIPAL,
-      //   },
-      // });
+      await this.sendChampService.createAccount(user.email, user.first_name);
 
-      //REPLACE WITH OTP LOGIC
-
-      // const link = await this.authService.generateEmailVerificationLink(
-      //   user.email,
-      // );
-      
-
-      // await this.mailjetService.sendEmailVerificationMail(
-      //   user.email,
-      //   user.full_name,
-      //   link,
-      // );
-
+      // Generate and send the OTP here
+      const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+      // Here you should implement a method to send OTP, for example, via email or SMS
+      await this.sendChampService.sendOTPToEmail(user.email, otp); // Placeholder for sending OTP
       await transactionRunner.commitTransaction();
-      return { message: 'user account created successfully', user };
+      return { message: 'User account created successfully', user };
     } catch (error) {
       this.logger.error(error);
       if (transactionRunner) await transactionRunner.rollbackTransaction();
-      // user && (await this.sendBirdService.deleteAccountOnRevert(user.id));
       throw new BadRequestException(error.message);
     } finally {
       if (transactionRunner) await transactionRunner.releaseTransaction();
@@ -175,7 +148,7 @@ export class AuthController {
       },
     );
 
-    return { message: 'login successful', user, refresh_token, access_token };
+    return { message: 'Login successful', user, refresh_token, access_token };
   }
 
   @Get('logout')
@@ -186,7 +159,7 @@ export class AuthController {
   @Get('user')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('JWT')
-  @UseGuards(JwtAuthGuard, ACGuard)
+  @UseGuards(JwtAuthGuard)
   user(@AuthUser() user: User) {
     return this.authService.verifyUser(user);
   }
@@ -215,23 +188,9 @@ export class AuthController {
     };
   }
 
-  @Redirect()
-  @Get('verification/team/email')
-  async verifyTeamEmail(@Query('token') token: string) {
-    const payload: IJwtPayload =
-      await this.authService.verifyAccessToken(token);
-
-    if (payload) {
-      return {
-        url: `${this.reactAppUrl}/password/team-member/${token}`,
-        statusCode: HttpStatus.PERMANENT_REDIRECT,
-      };
-    }
-  }
-
   @Post('verification/resend-email')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'resend email verification mail' })
+  @ApiOkResponse({ description: 'Resend email verification mail' })
   async resendEmailVerificationMail(
     @Body() body: { email: string },
   ): Promise<IHttpResponse> {
@@ -241,17 +200,50 @@ export class AuthController {
       return { message: 'Account already verified' };
     }
 
-    const link = await this.authService.generateEmailVerificationLink(
+    const code = await this.authService.generateEmailVerificationCode(
       user.email,
     );
 
-    // await this.mailjetService.sendEmailVerificationMail(
-    //   user.email,
-    //   user.full_name,
-    //   link,
-    // );
+    // Send the email verification mail again
+    await this.sendChampService.resendOTP(body.email, code);
+    return { message: 'Resent email verification mail' };
+  }
 
-    return { message: 'sent email verification mail' };
+  @Post('otp/send')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Send OTP to user' })
+  async sendOtp(@Body() body: { email: string }): Promise<IHttpResponse> {
+    const user = await this.userService.findByEmail(body.email);
+
+    if (!user || user.is_verified) {
+      throw new BadRequestException('User account not found or already verified');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate OTP
+    await this.sendChampService.sendOTPToEmail(body.email, otp); // Placeholder for sending OTP
+    return { message: 'OTP sent successfully' };
+  }
+
+  @Post('otp/verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Verify OTP' })
+  async verifyOtp(
+    @Body() body: { email: string; otp: string },
+  ): Promise<IHttpResponse> {
+    const user = await this.userService.findByEmail(body.email);
+
+    if (!user || user.is_verified) {
+      throw new BadRequestException('User account not found or already verified');
+    }
+
+    // Logic to verify the OTP (you need to implement this)
+    const isValidOtp = true; // Placeholder, implement actual verification logic
+    if (!isValidOtp) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    await this.userService.update({ email: body.email }, { is_verified: true });
+    return { message: 'OTP verified successfully, account is now verified' };
   }
 
   @Get('validate-user')
@@ -277,12 +269,8 @@ export class AuthController {
       'reactAppUrl',
     )}/password/${token}`;
 
-  //   await this.mailjetService.forwardPasswordResetMail(
-  //     user.email,
-  //     user.full_name,
-  //     link,
-  //   );
-  //   return { message: 'Password reset mail has been sent' };
+    // await this.sendChampService.sendEmailVerificationMail();
+    return { message: 'Password reset mail has been sent' };
   }
 
   @Patch('password-reset')
@@ -294,16 +282,26 @@ export class AuthController {
     const verifyPayload = await this.authService.verifyHash(token);
 
     const { email, exp } = verifyPayload;
-    const { password } = body;
+    const isExpired = Date.now() >= exp * 1000;
 
-    if (Date.now() >= exp * 1000) {
-      throw new UnauthorizedException('Session token has expired');
+    if (isExpired) {
+      throw new BadRequestException('Reset token expired');
+    }
+
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('User account not found');
     }
 
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(body.password, salt);
+    user.password = hashedPassword;
 
-    await this.userService.update({ email }, { password: hashedPassword });
+    await this.userService.update(
+      { email },
+      { password: hashedPassword },
+    );
 
     return { message: 'Password reset successful' };
   }

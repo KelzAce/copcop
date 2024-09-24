@@ -17,24 +17,24 @@ export class AccessController {
     private readonly userService: UserService,
   ) {}
 
-  @Patch('/merchantRole')
+  @Patch('/cooperativeRole')
   async updateRole(@Body() body: UpdateRoleDTO, @AuthUser() user: User) {
     await this.accessService.updateRole(body, user);
     return { message: 'Data updated successfully.' };
   }
 
-  @Get('/accessCredentials')
-  async fetchAccessCredentials(@AuthUser() user: User) {
-    const merchantId = user.cooperative.id;
-    const result = await this.accessService.findByCooperative(merchantId);
-    return { message: 'fetched merchant data', data: { result } };
-  }
+  // @Get('/accessCredentials')
+  // async fetchAccessCredentials(@AuthUser() user: User) {
+  //   const cooperativeId = user.cooperative.id;
+  //   const result = await this.accessService.findByCooperative(cooperativeId);
+  //   return { message: 'fetched merchant data', data: { result } };
+  // }
 
-  @Get('/fetchMerchantGroupByRole')
-  async fetchGroupByRoles(@AuthUser() user: User) {
-    const cooperativeId = user.cooperative.id;
-    const result = await this.userService.findByCooperative(cooperativeId);
+  // @Get('/fetchCooperativeGroupByRole')
+  // async fetchGroupByRoles(@AuthUser() user: User) {
+  //   const cooperativeId = user.cooperative.id;
+  //   const result = await this.userService.findByCooperative(cooperativeId);
 
-    return { message: 'fetched merchants and group by role', data: { result } };
-  }
+  //   return { message: 'fetched merchants and group by role', data: { result } };
+  // }
 }

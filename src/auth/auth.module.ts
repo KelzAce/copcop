@@ -8,6 +8,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { Cooperative } from 'src/shared/entities/cooperative.entity';
+import { SendChampService } from 'src/shared/services/sendchamp.service';
+
 // import { ApikeyService } from '../apikey/apikey.service';
 // import { Apikey } from '../apikey/entities/apikey.entity';
 
@@ -28,7 +30,7 @@ import { Cooperative } from 'src/shared/entities/cooperative.entity';
     JwtStrategy,
     JwtService,
     ConfigService,
-    // ApikeyService,
+    SendChampService
   ],
   exports: [TypeOrmModule, AuthService],
 })

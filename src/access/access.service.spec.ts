@@ -17,7 +17,7 @@ describe('AccessService', () => {
 
   const accessData = {
     user: user,
-    merchant: user.merchant,
+    cooperative: user.cooperative,
     isOwner: true,
     principalRole: {},
     adminstratorRole: {},
@@ -28,43 +28,28 @@ describe('AccessService', () => {
   const access = {
     id: faker.string.uuid(),
     user: accessData.user,
-    merchant: accessData.merchant,
+    cooperative: accessData.cooperative,
     principalRole: accessData.principalRole,
     adminstratorRole: accessData.adminstratorRole,
     supervisorRole: accessData.supervisorRole,
     othersRole: accessData.othersRole,
   };
   const data = {
-    user: user,
-    merchant: user.merchant,
-    isOwner: true,
-    principalRole: {
-      team: false,
-      users: false,
-      integrations: false,
-      channels: false,
-    },
-    adminstratorRole: {
-      team: false,
-      users: false,
-      integrations: false,
-      channels: false,
-    },
-    supervisorRole: {
-      team: false,
-      users: false,
-      integrations: false,
-      channels: false,
+    IsExcoRole: {
+      president: true,
+      secretary: true,
+      financial_secretary: true,
+      member: false,
     },
     othersRole: {
-      team: false,
-      users: false,
-      integrations: false,
-      channels: false,
+      president: false,
+      secretary: false,
+      financial_secretary: false,
+      member: true,
     },
   };
 
-  const merchantId = '1234edfgtr4345ygfghytr';
+  const cooperativeId = '1234edfgtr4345ygfghytr';
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -112,7 +97,7 @@ describe('AccessService', () => {
       }),
     });
 
-    const response = await service.findByMerchant(merchantId);
+    const response = await service.findByCooperative(cooperativeId);
     expect(response).toBeDefined();
     expect(response?.id).toStrictEqual(access.id);
   });
@@ -132,19 +117,19 @@ describe('AccessService', () => {
         (): Promise<any> => Promise.resolve({ ...access, ...updateData }),
       );
     const updateData = {
-      role: 'adminstrator',
+      role: 'principal',
       data: {
         value: {
-          users: true,
-          team: true,
-          integrations: true,
-          channels: false,
+          president: true,
+          secretary: false,
+          financial_secretary: false,
+          member: false,
         },
       },
     };
 
     const response = await service.updateRole(updateData, user);
-    expect(response.adminstratorRole).toBeDefined();
+    expect(response.isExcoRole).toBeDefined();
     expect(typeof response.id).toBe('string');
     expect(response.id.length).toBeGreaterThan(0);
   });
