@@ -4,10 +4,9 @@ import type { EntityManager, FindOptionsWhere, Repository } from 'typeorm';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { Role } from './entities/roles.enum';
 import { User } from './entities/user.entity';
-import { Cooperative } from 'src/shared/entities/cooperative.entity';
-import { Access } from 'src/access/entities/access.entity';
 import { slugify } from 'src/utils/helper';
-import { defaultAccess, defaultPrincipalAccess } from './dto/access.dto';
+
+import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
 
 
 @Injectable()
@@ -21,15 +20,15 @@ export class UserService {
     return this.userRepository.findOneBy(data);
   }
 
-  async create(
-    data: Partial<CreateUserDto>,
-    transactionManager:  EntityManager,
-  ): Promise<User> {
-    const userRepo = transactionManager.getRepository(User);
-    const cooperativeRepo = transactionManager.getRepository(Cooperative);
-    const accessRepo = transactionManager.getRepository(Access);
+  // async create(
+  //   data: Partial<CreateUserDto>,
+  //   transactionManager:  EntityManager,
+  // ): Promise<User> {
+  //   const userRepo = transactionManager.getRepository(User);
+  //   const cooperativeRepo = transactionManager.getRepository(Cooperative);
+  //   // const accessRepo = transactionManager.getRepository(Access);
 
-    const { first_name,  ...rest } = data;
+  //   const { first_name,  ...rest } = data;
 
     // const cooperative = cooperativeRepo.create({
     //   cooperative_name, 
@@ -38,23 +37,23 @@ export class UserService {
 
     // await cooperativeRepo.save(cooperative);
 
-    const user = userRepo.create({
-      ...rest,
-      // cooperative,
-      role: Role.MEMBER,
-    });
+    // const user = userRepo.create({
+    //   ...rest,
+    //   // cooperative,
+    //   role: Role.MEMBER,
+    // });
 
-    await accessRepo.save({
-      cooperative: user.cooperative,
-      isPrincipal: true,
-      isExcoRole: defaultPrincipalAccess,
-      othersRole: defaultAccess,
-    });
+    // await accessRepo.save({
+    //   // cooperative: user.cooperative,
+    //   isPrincipal: true,
+    //   isExcoRole: defaultPrincipalAccess,
+    //   othersRole: defaultAccess,
+    // });
 
-    await userRepo.save(user);
+    // await userRepo.save(user);
 
-    return user;
-  }
+    // return user;
+  // }
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({

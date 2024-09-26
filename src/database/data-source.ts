@@ -24,7 +24,14 @@ export const databaseOptions: DataSourceOptions = {
   migrations: ['dist/src/database/migrations/*.js'],
   migrationsTableName: 'cooperative_migration_table',
   logging: false,
-  synchronize: false
+  synchronize: true,
 };
+
+// console.log('DB Host:', process.env.DB_HOST);
+// console.log('DB Port:', process.env.DATABASE_PORT);
+// console.log('DB Username:', process.env.DATABASE_USERNAME);
+// console.log('DB Password:', process.env.DATABASE_PASSWORD);
+// console.log('DB Name:', process.env.DATABASE_NAME);
+
 
 export const dataSource = new DataSource(databaseOptions);

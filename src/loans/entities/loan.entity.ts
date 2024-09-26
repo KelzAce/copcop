@@ -1,68 +1,48 @@
-import {
-    Column,
-    Entity,
-    ManyToOne,
-    PrimaryGeneratedColumn,
-    DeleteDateColumn,
-    ManyToMany,
-    OneToOne,
-  } from 'typeorm';
-  import { Cooperative } from 'src/shared/entities/cooperative.entity';
-  import { IsOptional, IsString, Matches } from 'class-validator';
-  import { Access } from 'src/access/entities/access.entity';
-import { LoanType } from './loans_type.enum';
-  
-  
-  @Entity('loans')
-  export class Loan {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-  
-    @Column('varchar', { nullable: false })
-    loan_name: string;
-  
-    @Column('varchar', { default: LoanType.Contributory, nullable: false })
-    loan_type: string;
-  
-    @Column('bool', { default: false, nullable:true })
-    @IsOptional()
-    is_verified: boolean;
-  
-  
-    @Column('bool', { default: false, nullable: true })
-    @IsOptional()
-    invitationAcceptance: boolean;
-  
-    @Column('varchar', { default: false, nullable: true })
-    @ManyToMany(() => Cooperative, (cooperative) => cooperative.users)
-    cooperative: Cooperative;
-  
-    @Column('timestamp', {
-      nullable: true,
-      name: 'invitationSentAt',
-    })
-    LoanApplyAt: Date;
-  
-    @Column('varchar', { default: false, nullable: true })
-    @OneToOne(() => Access, (access) => access.users)
-    access: Access
-  
-    @Column('bool', { default: false, nullable: true })
-    @IsOptional()
-    status: boolean
-  
-    @Column('timestamp', {
-      nullable: false,
-      default: () => 'CURRENT_TIMESTAMP',
-      name: 'created_at',
-    })
-    created_at: Date;
-  
-    @Column('timestamp', {
-      nullable: false,
-      default: () => 'CURRENT_TIMESTAMP',
-      name: 'updated_at',
-    })
-    updated_at: Date;
-  }
-  
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { IsOptional } from 'class-validator';
+import { User } from 'src/user/entities/user.entity';
+import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
+import { Contribution } from 'src/contributions/entities/contribution.entity';
+import { Member } from 'src/shared/services/entities/member.entity';
+
+@Entity()
+export class Loan {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  amount: number;
+
+  @Column()
+  interestRate: number;
+
+  @ManyToOne(() => User, (user) => user.loans)
+  user: User;
+
+  @ManyToOne(() => Cooperative, (cooperative) => cooperative.loans)
+  cooperative: Cooperative;
+
+  @OneToMany(() => Contribution, (contribution) => contribution.loan)
+  contributions: Contribution[];
+
+  @ManyToOne(() => Member, (member) => member.loans)
+  member: Member;
+
+  @Column('bool', { default: false, nullable: true })
+  @IsOptional()
+  status: boolean
+
+  @Column('timestamp', {
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'created_at',
+  })
+  created_at: Date;
+
+  @Column('timestamp', {
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'updated_at',
+  })
+  updated_at: Date;
+}

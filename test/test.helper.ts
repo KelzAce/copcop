@@ -1,27 +1,27 @@
-import { faker } from '@faker-js/faker';
-import { Cooperative } from '../src/shared/entities/cooperative.entity';
-import { User } from '../src/user/entities/user.entity';
-import { Access } from 'src/access/entities/access.entity';
+// import { faker } from '@faker-js/faker';
+// import { Cooperative } from '../src/shared/entities/cooperative.entity';
+// import { User } from '../src/user/entities/user.entity';
+// import { Access } from 'src/access/entities/access.entity';
 
-export const getUser = ({
-  role = 'admin',
-  is_verified = true,
-  cooperativeId = null,
-  first_name = null,
-  last_name = null,
-  email = null,
-}): User => {
-  return {
-    first_name: first_name ?? faker.person.firstName(),
-    last_name: last_name ?? faker.person.lastName(),
-    // phone_number: phone_number ?? faker.phone
-    email: email ?? faker.internet.email(),
-    password: faker.lorem.word(),
-    cooperative: {
-      id: cooperativeId ?? faker.string.uuid(),
-      cooperative_name: faker.company.name(),
-      createdAt: new Date('2022-11-23T15:23:46.502Z'),
-      users: [],
+// export const getUser = ({
+//   role = 'admin',
+//   is_verified = true,
+//   cooperativeId = null,
+//   first_name = null,
+//   last_name = null,
+//   email = null,
+// }): User => {
+//   return {
+//     first_name: first_name ?? faker.person.firstName(),
+//     last_name: last_name ?? faker.person.lastName(),
+    // // phone_number: phone_number ?? faker.phone
+    // email: email ?? faker.internet.email(),
+    // password: faker.lorem.word(),
+    // cooperative: {
+    //   id: cooperativeId ?? faker.string.uuid(),
+    //   cooperative_name: faker.company.name(),
+      // createdAt: new Date('2022-11-23T15:23:46.502Z'),
+      // users: [],
       // senderIds: [],
       // campaigns: [],
       // contacts: [],
@@ -31,18 +31,18 @@ export const getUser = ({
       // teams: [],
       // merchantCustomers: [],
       // notifications: [],
-    },
-    id: faker.string.uuid(),
-    status: false,
-    created_at: new Date('2022-11-23T15:23:46.624Z'),
-    deleted_at: new Date('2022-11-23T15:23:46.624Z'),
-    is_verified,
-    role,
-    invitedBy: faker.string.uuid(),
-    invitationSentAt: new Date(),
-    invitationAcceptance: false,
-  };
-};
+    // },
+//     id: faker.string.uuid(),
+//     status: false,
+//     created_at: new Date('2022-11-23T15:23:46.624Z'),
+//     deleted_at: new Date('2022-11-23T15:23:46.624Z'),
+//     is_verified,
+//     role,
+//     invitedBy: faker.string.uuid(),
+//     invitationSentAt: new Date(),
+//     invitationAcceptance: false,
+//   };
+// };
 
 // export const getCooperative = ({ cooperativeId = null }): Cooperative => {
 //   return {

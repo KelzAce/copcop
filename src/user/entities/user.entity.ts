@@ -1,16 +1,11 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  DeleteDateColumn,
-  ManyToMany,
-  OneToOne,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, OneToOne, JoinColumn, DeleteDateColumn } from 'typeorm';
+import { IsOptional } from 'class-validator';
+import { Payment } from 'src/payments/entities/payment.entity';
 import { Role } from './roles.enum';
-import { Cooperative } from 'src/shared/entities/cooperative.entity';
-import { IsOptional, IsString, Matches } from 'class-validator';
-import { Access } from 'src/access/entities/access.entity';
+import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
+import { Loan } from 'src/loans/entities/loan.entity';
+import { Contribution } from 'src/contributions/entities/contribution.entity';
+import { KYC } from 'src/kyc/entities/kyc.entity';
 
 
 @Entity('users')
@@ -30,67 +25,28 @@ export class User {
   @Column('varchar', { nullable: false })
   password: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  @IsOptional()
-  @IsString()
-  phone_number: string
-
-  @Column({ type: 'varchar', nullable: true })
-  @IsOptional()
-  @IsString()
-  gender: string
-
-  @Column({ type: 'varchar', nullable: true })
-  @IsOptional()
-  @IsString()
-  @Matches(/\.(jpg|jpeg|png)$/, {
-    message: 'Photo must be a valid image file (jpg, jpeg, or png).',
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.MEMBER,
   })
-  image: string;
+  role: Role;
 
-  @Column({type: 'varchar', nullable:true})
-  @IsOptional()
-  @IsString()
-  bank_account_id: string;
-
-  @Column('varchar', { default: Role.MEMBER, nullable: true })
-  @IsOptional()
-  role: string;
-
-  @Column('bool', { default: false, nullable:true })
-  @IsOptional()
-  is_verified: boolean;
-
-  @Column({type: 'varchar', nullable:true})
-  @IsOptional()
-  @ManyToOne(() => User, (user) => user.invitedBy, { nullable: true })
-  invitedBy: string;
-
-  @Column({ type: 'varchar', length: 11 })
-  @IsString()
-  @IsOptional()
-  @Matches(/^\d{11}$/, {
-    message: 'BVN must be exactly 11 digits long.',
-  })
-  bvn: string;
-
-  @Column('bool', { default: false, nullable: true })
-  @IsOptional()
-  invitationAcceptance: boolean;
-
-  @Column('varchar', { default: false, nullable: true })
-  @ManyToMany(() => Cooperative, (cooperative) => cooperative.users)
+  @ManyToOne(() => Cooperative, (cooperative) => cooperative.members)
   cooperative: Cooperative;
 
-  @Column('timestamp', {
-    nullable: true,
-    name: 'invitationSentAt',
-  })
-  invitationSentAt: Date;
+  @OneToMany(() => Loan, (loan) => loan.user)
+  loans: Loan[];
 
-  @Column('varchar', { default: false, nullable: true })
-  @OneToOne(() => Access, (access) => access.users)
-  access: Access
+  @OneToMany(() => Contribution, (contribution) => contribution.user)
+  contributions: Contribution[];
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
+
+  @OneToOne(() => KYC, (kyc) => kyc.user)
+  @JoinColumn()
+  kyc: KYC;
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deleted_at: Date;
@@ -116,3 +72,4 @@ export class User {
   })
   updated_at: Date;
 }
+

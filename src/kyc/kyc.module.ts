@@ -1,25 +1,17 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { KycService } from './kyc.service';
+
 import { KycController } from './kyc.controller';
-import { Kyc } from './entities/kyc.entity';
-import { CooperativeOwnerService } from './companyOwner/companyOwner.service';
-import { ConfigService } from '@nestjs/config';
-// import { WalletModule } from '../wallet/wallet.module';
-import { CooperativeOwner } from './companyOwner/companyOwner.entity';
+import { KYCService } from './kyc.service';
+import { KYC } from './entities/kyc.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      Kyc,
-      CooperativeOwner,
+      KYC
     ]),
-  
   ],
   controllers: [KycController],
-  providers: [
-    KycService,
-    CooperativeOwnerService,
-    ConfigService,
-  ],
+  providers: [KYCService],
 })
 export class KycModule {}

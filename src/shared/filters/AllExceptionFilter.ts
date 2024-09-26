@@ -33,10 +33,10 @@ export class AllExceptionFilter implements ExceptionFilter {
       message,
     };
     this.logger.warn(exception);
-    // this.logger.error(
-    //   `HTTP Exception: ${httpStatus} - ${message}`,
-    //   exception.stack,
-    // );
+    this.logger.error(
+      `HTTP Exception: ${httpStatus} - ${message}`,
+      exception.stack,
+    );
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }

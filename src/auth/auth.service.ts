@@ -4,9 +4,10 @@ import { JwtService } from '@nestjs/jwt';
 import { IJwtPayload } from './auth.interface';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Cooperative } from 'src/shared/entities/cooperative.entity';
+
 import axios from 'axios';
 import { User } from 'src/user/entities/user.entity';
+import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
 
 @Injectable()
 export class AuthService {

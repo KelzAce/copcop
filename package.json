@@ -18,13 +18,15 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "typeorm-ts-node-commonjs",
     "migration:create": "yarn run typeorm -- migration:create",
     "migration:revert": "yarn run typeorm_local -- migration:revert",
     "migration:run": "yarn run typeorm_local -- migration:run",
     "migration:show": "yarn run typeorm_local -- migration:show",
     "migration:drop": "yarn run typeorm_local -- migration:drop",
-    "migration:generate": "yarn run typeorm -- migration:generate",
-    "typeorm_local": "yarn run build && typeorm -d dist/database/data-source.js"
+    "typeorm_local": "yarn run build && typeorm -d src/database/data-source.js",
+    "migration:generate": "npx tsc && npm run typeorm migration:generate userTable -- -d ./src/database/data-source.ts",
+    "db-migrate": "npx tsc && npm run typeorm migration:run -- -d ./src/database/data-source.ts"
   },
   "dependencies": {
     "@eslint/config-array": "^0.18.0",

@@ -4,14 +4,14 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
-import { AuthController } from './auth.controller';
+
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-import { Cooperative } from 'src/shared/entities/cooperative.entity';
-import { SendChampService } from 'src/shared/services/sendchamp.service';
 
-// import { ApikeyService } from '../apikey/apikey.service';
-// import { Apikey } from '../apikey/entities/apikey.entity';
+// import { SendChampService } from 'src/shared/services/sendchamp.service';
+import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
+import { AuthController } from './auth.controller';
+
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { SendChampService } from 'src/shared/services/sendchamp.service';
     JwtStrategy,
     JwtService,
     ConfigService,
-    SendChampService
+    // SendChampService
   ],
   exports: [TypeOrmModule, AuthService],
 })

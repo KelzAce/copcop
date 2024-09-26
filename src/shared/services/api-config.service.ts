@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import type { dbConfigs } from './types/dbConfig';
+import type { dbConfigs } from '../types/dbConfigs';
+import { User } from '../../user/entities/user.entity';
+import { KYC } from 'src/kyc/entities/kyc.entity';
+import { VirtualAccounts } from '../entities/virtual-accounts.entity';
+import { SystemWalletEntity } from '../entities/system-wallet.entity';
+import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
+import { Contribution } from 'src/contributions/entities/contribution.entity';
+import { Loan } from 'src/loans/entities/loan.entity';
+import { Payment } from 'src/payments/entities/payment.entity';
 
-import { Access } from 'src/access/entities/access.entity';
-import { Cooperative } from '../entities/cooperative.entity';
-import { User } from 'src/user/entities/user.entity';
-
-// import { Kyc } from '../../kyc/entities/kyc.entity';
 
 @Injectable()
 export class ApiConfigService {
@@ -21,12 +24,14 @@ export class ApiConfigService {
       type: 'postgres',
       migrations: [],
       entities: [
-        //Bring all Entities here
         Cooperative,
-        Access,
+        Contribution,
         User,
-        
-        // Notification,
+        Loan,
+        Payment,
+        SystemWalletEntity,
+        VirtualAccounts,
+        KYC
       ],
       migrationsRun: true,
       username,
