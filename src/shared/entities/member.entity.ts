@@ -1,10 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn } from 'typeorm';
 import { Loan } from 'src/loans/entities/loan.entity';
 import { Contribution } from 'src/contributions/entities/contribution.entity';
 import { IsOptional } from 'class-validator';
 import { Role } from 'src/user/entities/roles.enum';
 
-@Entity()
+@Entity('member')
 export class Member {
   @PrimaryGeneratedColumn()
   id: number;
@@ -28,9 +28,12 @@ export class Member {
   totalShares: number; // Total shares owned by the member
 
   @OneToMany(() => Contribution, (contribution) => contribution.member)
+  @IsOptional()
+  @JoinColumn({ name: 'contributionId' })
   contributions: Contribution[];
 
   @OneToMany(() => Loan, (loan) => loan.member)
+  @JoinColumn({ name: 'loanId' })
   loans: Loan[];
 
 //   @OneToMany(() => Share, (share) => share.member)
@@ -38,7 +41,11 @@ export class Member {
 
 @Column('bool', { default: false, nullable: true })
 @IsOptional()
-status: boolean
+isActive: boolean
+
+@Column('bool', { default: false, nullable: true })
+@IsOptional()
+invitationToken: string;
 
 @Column('timestamp', {
   nullable: false,

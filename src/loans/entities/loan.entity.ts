@@ -1,11 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { IsOptional } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
 import { Contribution } from 'src/contributions/entities/contribution.entity';
-import { Member } from 'src/shared/services/entities/member.entity';
+import { Member } from 'src/shared/entities/member.entity';
 
-@Entity()
+@Entity('loans')
 export class Loan {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -20,17 +20,21 @@ export class Loan {
   user: User;
 
   @ManyToOne(() => Cooperative, (cooperative) => cooperative.loans)
+  @JoinColumn()
   cooperative: Cooperative;
 
   @OneToMany(() => Contribution, (contribution) => contribution.loan)
   contributions: Contribution[];
 
-  @ManyToOne(() => Member, (member) => member.loans)
-  member: Member;
+  @ManyToOne(() => Loan, loan => loan.member)  // Defines the inverse side of the relationship
+  member: Member[]; 
 
-  @Column('bool', { default: false, nullable: true })
+  @Column()
+  approvedBy: string;
+
+  @Column('varchar', {  nullable: true })
   @IsOptional()
-  status: boolean
+  status: string
 
   @Column('timestamp', {
     nullable: false,

@@ -7,7 +7,6 @@ import { Loan } from 'src/loans/entities/loan.entity';
 import { Contribution } from 'src/contributions/entities/contribution.entity';
 import { KYC } from 'src/kyc/entities/kyc.entity';
 
-
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -36,6 +35,7 @@ export class User {
   cooperative: Cooperative;
 
   @OneToMany(() => Loan, (loan) => loan.user)
+  @JoinColumn({ name: 'loanId' })
   loans: Loan[];
 
   @OneToMany(() => Contribution, (contribution) => contribution.user)

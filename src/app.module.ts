@@ -3,25 +3,21 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
-
-// import { roles } from './app.roles';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UsersModule } from './user/user.module';
-
 import { CooperativeModule } from './cooperative/cooperative.module';
 import { ContributionsModule } from './contributions/contributions.module';
 import { KycModule } from './kyc/kyc.module';
 import { PaymentsModule } from './payments/payments.module';
-
 import { LoansModule } from './loans/loans.module';
 import { ApiConfigService } from './shared/services/api-config.service';
 import configuration from './shared/config/configuration';
 import { SharedModule } from './shared/shared.module';
+import { CommitteeModule } from './committee/committe.module';
 
 
 @Module({
@@ -50,8 +46,7 @@ import { SharedModule } from './shared/shared.module';
     PaymentsModule,
     LoansModule,
     SharedModule,
-    
-    
+    CommitteeModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

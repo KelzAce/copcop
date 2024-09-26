@@ -6,7 +6,7 @@ import { Contribution } from 'src/contributions/entities/contribution.entity';
 import { Loan } from 'src/loans/entities/loan.entity';
 
 
-@Entity()
+@Entity('cooperative')
 export class Cooperative {
   @PrimaryGeneratedColumn('uuid')
   id: string;

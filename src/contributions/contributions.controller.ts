@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ContributionsService } from './contributions.service';
 import { CreateContributionDto } from './dto/create-contribution.dto';
 import { UpdateContributionDto } from './dto/update-contribution.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('contributions')
 @Controller('contributions')
 export class ContributionsController {
   constructor(private readonly contributionsService: ContributionsService) {}

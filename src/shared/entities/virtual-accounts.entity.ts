@@ -10,7 +10,7 @@ import {
 // import { AccountWalletType } from '../../utils/enums';
 // import { Ledger } from './ledger.entity';
 
-@Entity()
+@Entity('virtual-accounts')
 export class VirtualAccounts {
   @PrimaryGeneratedColumn('uuid')
   id: string;

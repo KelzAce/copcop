@@ -3,7 +3,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
 
 
-@Entity()
+@Entity('kyc')
 export class KYC {
   @PrimaryGeneratedColumn()
   id: number;

@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { IsOptional } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 
-@Entity()
+@Entity('payment')
 export class Payment {
   @PrimaryGeneratedColumn('uuid')
   id: string;

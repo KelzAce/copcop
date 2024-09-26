@@ -1,12 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { IsOptional } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
 import { Loan } from 'src/loans/entities/loan.entity';
-import { Member } from 'src/shared/services/entities/member.entity';
+import { Member } from 'src/shared/entities/member.entity';
 
-@Entity()
+@Entity('contribution')
 export class Contribution {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -21,10 +20,12 @@ export class Contribution {
   cooperative: Cooperative;
 
   @ManyToOne(() => Member, (member) => member.contributions)
+  @IsOptional()
+  @JoinColumn({ name: 'member' })
   member: Member[];
 
-
   @ManyToOne(() => Loan, (loan) => loan.contributions, { nullable: true })
+  @IsOptional()
   loan: Loan;  // Optional: if the contribution is for loan repayment
 
   @Column('bool', { default: false, nullable: true })

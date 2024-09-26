@@ -19,7 +19,6 @@ export const databaseOptions: DataSourceOptions = {
     ? process.env.DB_PASSWORD_TEST
     : process.env.DB_PASSWORD,
   database: isTest ? process.env.DB_DATABASE_TEST : process.env.DB_DATABASE,
-  subscribers: [],
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/src/database/migrations/*.js'],
   migrationsTableName: 'cooperative_migration_table',

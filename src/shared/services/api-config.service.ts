@@ -10,6 +10,7 @@ import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
 import { Contribution } from 'src/contributions/entities/contribution.entity';
 import { Loan } from 'src/loans/entities/loan.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
+import { Member } from '../entities/member.entity';
 
 
 @Injectable()
@@ -31,7 +32,8 @@ export class ApiConfigService {
         Payment,
         SystemWalletEntity,
         VirtualAccounts,
-        KYC
+        KYC,
+        Member
       ],
       migrationsRun: true,
       username,
