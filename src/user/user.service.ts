@@ -1,88 +1,91 @@
+// src/users/users.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import type { EntityManager, FindOptionsWhere, Repository } from 'typeorm';
-import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { Role } from './entities/roles.enum';
-import { User } from './entities/user.entity';
-import { slugify } from 'src/utils/helper';
-
+import { Repository } from 'typeorm';
+import { User, } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
-
+import { Role } from './entities/roles.enum';
+import { Regulator } from 'src/regulator/entities/regulator.entity';
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(User) private usersRepository: Repository<User>,
+    @InjectRepository(Cooperative) private cooperativeRepository: Repository<Cooperative>,
+    @InjectRepository(Regulator) private regulatorRepository: Repository<Regulator>
   ) {}
 
-  findOne(data: FindOptionsWhere<User>): Promise<User | null> {
-    return this.userRepository.findOneBy(data);
+  async findByEmail(email: string): Promise<User> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 
-  // async create(
-  //   data: Partial<CreateUserDto>,
-  //   transactionManager:  EntityManager,
-  // ): Promise<User> {
-  //   const userRepo = transactionManager.getRepository(User);
-  //   const cooperativeRepo = transactionManager.getRepository(Cooperative);
-  //   // const accessRepo = transactionManager.getRepository(Access);
-
-  //   const { first_name,  ...rest } = data;
-
-    // const cooperative = cooperativeRepo.create({
-    //   cooperative_name, 
-    //   slug: slugify(cooperative_name)
-    // });
-
-    // await cooperativeRepo.save(cooperative);
-
-    // const user = userRepo.create({
-    //   ...rest,
-    //   // cooperative,
-    //   role: Role.MEMBER,
-    // });
-
-    // await accessRepo.save({
-    //   // cooperative: user.cooperative,
-    //   isPrincipal: true,
-    //   isExcoRole: defaultPrincipalAccess,
-    //   othersRole: defaultAccess,
-    // });
-
-    // await userRepo.save(user);
-
-    // return user;
+  // async createAdmin(email: string, password: string): Promise<User> {
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+  //   const admin = this.usersRepository.create({ email, password: hashedPassword, role: Role.ADMIN });
+  //   return this.usersRepository.save(admin);
   // }
 
-  async findByEmail(email: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({
-      where: { email, deleted_at: null },
-      relations: ['cooperative'],
-    });
-    return user;
+  async createCooperative(name: string, presidentEmail: string) {
+    // Create a new cooperative
+    const cooperative = this.cooperativeRepository.create({ name });
+    const president = await this.findByEmail(presidentEmail);
+    if (!president) {
+      // Create president with default password
+      const password = 'defaultPassword';
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newPresident = this.usersRepository.create({
+        email: presidentEmail,
+        password: hashedPassword,
+        role: Role.PRESIDENT,
+        isPasswordChanged: false,
+      });
+      cooperative.president = newPresident;
+    } else {
+      cooperative.president = president;
+    }
+    return this.cooperativeRepository.save(cooperative);
   }
 
-  findByCooperative(id: string) {
-    const result = this.userRepository
-      .createQueryBuilder('user')
-      .select(['user.role', 'COUNT(user.id) as count'])
-      .where('user.cooperativeId = :cooperativeId', { cooperativeId: id })
-      .groupBy('user.role')
-      .getRawMany();
-
-    return result;
+  async createRegulator(name: string, email: string, role: string) {
+    // Create a new cooperative
+    const regulator = this.regulatorRepository.create({ name, email, role });
+    
+    if (!regulator) {
+      // Create regulator with default password
+      const password = 'defaultPassword';
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newRegulator = this.usersRepository.create({
+        email: email,
+        password: hashedPassword,
+        role: Role.REGULATOR,
+        isPasswordChanged: false,
+      });
+      return this.cooperativeRepository.save(newRegulator);
+    } 
   }
 
-  findById(id: string): Promise<User | null> {
-    return this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.cooperative', 'cooperative')
-      .where('user.id = :id', { id })
-      .getOne();
-  }
+  // async inviteMembers(cooperativeId: number, members: { email: string }[]) {
+  //   const cooperative = await this.cooperativeRepository.findOne(cooperativeId, { relations: ['members'] });
+  //   members.forEach(async (memberData) => {
+  //     const password = 'defaultPassword';
+  //     const hashedPassword = await bcrypt.hash(password, 10);
+  //     const member = this.usersRepository.create({
+  //       email: memberData.email,
+  //       password: hashedPassword,
+  //       role: UserRole.MEMBER,
+  //       isPasswordChanged: false,
+  //     });
+  //     cooperative.members.push(member);
+  //   });
+  //   return this.cooperativeRepository.save(cooperative);
+  // }
 
-  update(query: FindOptionsWhere<User>, data: Partial<User>) {
-    return this.userRepository.update(query, data);
-  }
+  // async changeDefaultPassword(userId: number, newPassword: string) {
+  //   const user = await this.findOne(userId);
+  //   const hashedPassword = await bcrypt.hash(newPassword, 10);
+  //   user.password = hashedPassword;
+  //   user.isPasswordChanged = true;
+  //   return this.usersRepository.save(user);
+  // }
 }

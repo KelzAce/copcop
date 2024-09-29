@@ -2,8 +2,6 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from 'src/user/entities/roles.enum';
 
-
-
 @Injectable()
 export class ExcoGuard implements CanActivate {
   constructor(private reflector: Reflector) {}

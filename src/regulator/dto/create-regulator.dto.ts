@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
 
-export class CreateCooperativeDto {
+export class CreateRegulatorDto {
   @ApiProperty()
   @IsString()
   name: string;
@@ -13,8 +13,7 @@ export class CreateCooperativeDto {
 
   @ApiProperty()
   @IsString()
-  presidentEmail: string;
- 
+  email: string;
 }
 
 

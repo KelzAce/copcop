@@ -10,14 +10,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UsersModule } from './user/user.module';
 import { CooperativeModule } from './cooperative/cooperative.module';
-import { ContributionsModule } from './contributions/contributions.module';
-import { KycModule } from './kyc/kyc.module';
-import { PaymentsModule } from './payments/payments.module';
-import { LoansModule } from './loans/loans.module';
 import { ApiConfigService } from './shared/services/api-config.service';
 import configuration from './shared/config/configuration';
 import { SharedModule } from './shared/shared.module';
-import { CommitteeModule } from './committee/committe.module';
+import { AdminModule } from './admin/admin.module';
+import { RegulatorModule } from './regulator/regulator.module';
+
 
 
 @Module({
@@ -41,12 +39,9 @@ import { CommitteeModule } from './committee/committe.module';
     UsersModule,
     AuthModule,
     CooperativeModule,
-    ContributionsModule,
-    KycModule,
-    PaymentsModule,
-    LoansModule,
     SharedModule,
-    CommitteeModule,
+    AdminModule,
+    RegulatorModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

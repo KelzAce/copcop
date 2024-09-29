@@ -1,149 +1,121 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, Body, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Contribution } from 'src/contributions/entities/contribution.entity';
-import { Loan } from 'src/loans/entities/loan.entity';
-import { Member } from 'src/shared/entities/member.entity';
-import { Role } from 'src/user/entities/roles.enum';
+import { parse } from 'csv-parse';
+import { promises as fs } from 'fs';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-
-import { v4 as uuidv4 } from 'uuid';
+import { CreateCooperativeDto } from './dto/create-cooperative.dto';
+import { Cooperative } from './entities/cooperative.entity';
+import { Role } from 'src/user/entities/roles.enum';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CooperativeService {
-  constructor(
-    @InjectRepository(Member)
-    private memberRepository: Repository<Member>,
-    @InjectRepository(Contribution)
-    private contributionRepository: Repository<Contribution>,
-    @InjectRepository(Loan)
-    private loanRepository: Repository<Loan>,
-    // @InjectRepository(Share)
-    // private shareRepository: Repository<Share>,
-  ) {}
+    constructor(
+        // private readonly inviteService: InviteService, // Inject invite service if used
+        @InjectRepository(User)
+        private readonly usersRepository: Repository<User>,
+        @InjectRepository(Cooperative)
+        private readonly cooperativeRepository: Repository<Cooperative>,
+    ) {}
 
-  // Admin invites a new member
-  async inviteMember(email: string, name: string, adminId: number): Promise<string> {
-    const admin = await this.memberRepository.findOne({ where: { id: adminId } });
+    async createCooperative(@Body() createCooperativeDto: CreateCooperativeDto): Promise<Cooperative> {
+        // Check if the user (president) already exists
+        let president = await this.usersRepository.findOne({where: {email: createCooperativeDto.presidentEmail}});
+        
+        // If the president does not exist, create them with a default password
+        if (!president) {
+          const defaultPassword = 'defaultPassword123';  // Change this to a more secure default
+          const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    
+          president = this.usersRepository.create({
+            email: createCooperativeDto.presidentEmail,
+            password: hashedPassword,
+            role: Role.PRESIDENT,
+            isPasswordChanged: false,
+          });
+    
+          await this.usersRepository.save(president);
+        }
+    
+        // Create a new cooperative with this president
+        // Create and save the new cooperative
+        const cooperative = this.cooperativeRepository.create({
+        president,
+      });
+  
+      return this.cooperativeRepository.save(cooperative);
+      }
 
-    if (!admin || admin.role !== Role.PRESIDENT) {
-      throw new Error('Only admins can invite new members');
-    }
+    // Add a new member by email
+    // async addMember(cooperativeId: number, email: string): Promise<Member> {
+    //     // Validate the email format
+    //     if (!this.isValidEmail(email)) {
+    //         throw new BadRequestException('Invalid email format');
+    //     }
 
-    const invitationToken = uuidv4();
+        // const member = new Member();
+        // member.email = email;
+        // member.cooperativeId = cooperativeId;
 
-    const newMember = this.memberRepository.create({
-      email,
-      name,
-      totalContributions: 0,
-      totalLoans: 0,
-      totalShares: 0,
-      isActive: false,
-      invitationToken,
-    });
+        // Save the member to the database
+        // Replace with actual save logic
+        // return await member.save();
+    // }
 
-    await this.memberRepository.save(newMember);
-    return `http://your-cooperative-app.com/onboard/${invitationToken}`;
-  }
+    // Upload members from a CSV file
+    // async uploadMembersFromCsv(cooperativeId: number, filePath: string): Promise<string> {
+    //     // const members: Member[] = [];
 
-  // Complete onboarding for new member
-  async completeOnboarding(token: string): Promise<Member> {
-    const member = await this.memberRepository.findOne({ where: { invitationToken: token } });
+    //     const fileContent = await fs.readFile(filePath);
 
-    if (!member) {
-      throw new Error('Invalid invitation token');
-    }
+    //     return new Promise((resolve, reject) => {
+    //         parse(fileContent, {
+    //             columns: true,
+    //             trim: true,
+    //         })
+    //         .on('data', async (row) => {
+    //             const email = row.email; // Adjust based on your CSV structure
+    //             if (this.isValidEmail(email)) {
+    //                 const member = new Member();
+    //                 member.email = email;
+    //                 member.cooperativeId = cooperativeId;
+    //                 members.push(member);
+    //             }
+    //         })
+    //         .on('end', async () => {
+    //             // Save all valid members to the database
+    //             await Promise.all(members.map(member => member.save())); // Replace with actual save logic
+    //             resolve('Members added successfully');
+    //         })
+    //         .on('error', (error) => {
+    //             reject(new BadRequestException('Error processing the CSV file'));
+    //         });
+    //     });
+    // }
 
-    member.isActive = true;
-    member.invitationToken = null; // Clear the token after onboarding
-    return this.memberRepository.save(member);
-  }
+    // Send invitation to a member
+    // async sendInvite(cooperativeId: number, email: string): Promise<void> {
+    //     // Validate the email format
+    //     if (!this.isValidEmail(email)) {
+    //         throw new BadRequestException('Invalid email format');
+    //     }
 
-  // Assign a role to a member
-  async assignRole(id: number, role: Role): Promise<Member> {
-    const member = await this.memberRepository.findOne({ where: { id } });
-    if (!member) {
-      throw new Error('Member not found');
-    }
+    //     // Logic to send an invitation (using InviteService)
+    //     await this.inviteService.sendEmailInvite(email, cooperativeId); // Adjust based on your implementation
+    // }
 
-    member.role = role;
-    return this.memberRepository.save(member);
-  }
+    // // Helper function to validate email
+    // private isValidEmail(email: string): boolean {
+    //     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //     return regex.test(email);
+    // }
 
-  // Add a contribution
-  async addContribution(memberId: number, amount: number): Promise<Contribution> {
-    const member = await this.memberRepository.findOne({ where: { id: memberId } });
-    if (!member) {
-      throw new Error('Member not found');
-    }
+    // async findOne(){
 
-    const contribution = this.contributionRepository.create({
-      member,
-      amount,
-      date: new Date(),
-    });
+    // }
 
-    member.totalContributions += amount;
-    await this.memberRepository.save(member);
-    return this.contributionRepository.save(contribution);
-  }
-
-  // Take a loan
-  async takeLoan(memberId: number, amount: number, interestRate: number, dueDate: Date): Promise<Loan> {
-    const member = await this.memberRepository.findOne({ where: { id: memberId } });
-    if (!member) {
-      throw new Error('Member not found');
-    }
-
-    const loan = this.loanRepository.create({
-      member,
-      amount,
-      interestRate,
-      dateIssued: new Date(),
-      dueDate,
-      balance: amount,
-    });
-
-    member.totalLoans += amount;
-    await this.memberRepository.save(member);
-    return this.loanRepository.save(loan);
-  }
-
-  // Buy shares
-  // async buyShares(memberId: number, shareValue: number, quantity: number): Promise<Share> {
-  //   const member = await this.memberRepository.findOne({ where: { id: memberId } });
-  //   if (!member) {
-  //     throw new Error('Member not found');
-  //   }
-
-  //   const totalValue = shareValue * quantity;
-
-  //   const share = this.shareRepository.create({
-  //     member,
-  //     shareValue,
-  //     quantity,
-  //     datePurchased: new Date(),
-  //   });
-
-  //   member.totalShares += totalValue;
-  //   await this.memberRepository.save(member);
-  //   return this.shareRepository.save(share);
-  // }
-
-  // Get financial summary for a member
-  async getFinancialDetails(id: number): Promise<{
-    totalContributions: number;
-    totalLoans: number;
-    totalShares: number;
-  }> {
-    const member = await this.memberRepository.findOne({ where: { id } });
-    if (!member) {
-      throw new Error('Member not found');
-    }
-
-    return {
-      totalContributions: member.totalContributions,
-      totalLoans: member.totalLoans,
-      totalShares: member.totalShares,
-    };
-  }
+    // async save(){
+        
+    // }
 }

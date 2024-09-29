@@ -1,72 +1,49 @@
-// cooperative.controller.ts
-import { Controller, Get, Param, Post, Body, Patch, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CooperativeService } from './cooperative.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { UserRole } from '../user/user.role.enum';
+import { ApiTags } from '@nestjs/swagger';
 
-import { Loan } from 'src/loans/entities/loan.entity';
-import { Contribution } from 'src/contributions/entities/contribution.entity';
-import { Member } from 'src/shared/entities/member.entity';
-import { Role } from 'nest-access-control';
-import { ApiCreatedResponse } from '@nestjs/swagger';
-import { Cooperative } from './entities/cooperative.entity';
-
+@ApiTags('cooperative')
 @Controller('cooperative')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.PRESIDENT)
 export class CooperativeController {
   constructor(private readonly cooperativeService: CooperativeService) {}
 
-  @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ type: Cooperative, description: 'Invitation Successful' })
-  @Post('invite')
-  inviteMember(
-    @Body('email') email: string,
-    @Body('name') name: string,
-    @Body('adminId') adminId: number,
-  ): Promise<string> {
-    return this.cooperativeService.inviteMember(email, name, adminId);
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ type: Cooperative, description: 'Onboarded' })
-  @Get('onboard/:token')
-  completeOnboarding(@Param('token') token: string): Promise<Member> {
-    return this.cooperativeService.completeOnboarding(token);
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ type: Cooperative, description: 'Invitation Successful' })
-  @Patch('assign-role/:id')
-  assignRole(@Param('id') id: number, @Body('role') role: Role): Promise<Member> {
-    return this.cooperativeService.assignRole(id, role);
-  }
-
-  @Post('contribution/:memberId')
-  addContribution(
-    @Param('memberId') memberId: number,
-    @Body('amount') amount: number,
-  ): Promise<Contribution> {
-    return this.cooperativeService.addContribution(memberId, amount);
-  }
-
-  @Post('loan/:memberId')
-  takeLoan(
-    @Param('memberId') memberId: number,
-    @Body('amount') amount: number,
-    @Body('interestRate') interestRate: number,
-    @Body('dueDate') dueDate: Date,
-  ): Promise<Loan> {
-    return this.cooperativeService.takeLoan(memberId, amount, interestRate, dueDate);
-  }
-
-  // @Post('shares/:memberId')
-  // buyShares(
-  //   @Param('memberId') memberId: number,
-  //   @Body('shareValue') shareValue: number,
-  //   @Body('quantity') quantity: number,
-  // ): Promise<Share> {
-  //   return this.cooperativeService.buyShares(memberId, shareValue, quantity);
+  // Add a new member by email
+  // @Post('add-member')
+  // async addMember(@Body('email') email: string, @Req() req: any) {
+  //   const cooperativeId = req.user.cooperativeId;
+  //   return this.cooperativeService.addMember(cooperativeId, email);
   // }
 
-  @Get('financial-details/:id')
-  getFinancialDetails(@Param('id') id: number): Promise<{ totalContributions: number; totalLoans: number; totalShares: number; }> {
-    return this.cooperativeService.getFinancialDetails(id);
-  }
+  // Upload a CSV to add multiple members
+  // @Post('upload-members')
+  // @UseInterceptors(FileInterceptor('file', {
+  //   storage: diskStorage({
+  //     destination: './uploads/csv',
+  //     filename: (req, file, callback) => {
+  //       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  //       const ext = extname(file.originalname);
+  //       // callback(null, `${req.user.cooperativeId}-${uniqueSuffix}${ext}`);
+  //     },
+  //   }),
+  // }))
+  // async uploadMembers(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+  //   const cooperativeId = req.user.cooperativeId;
+  //   return this.cooperativeService.uploadMembersFromCsv(cooperativeId, file.path);
+  // }
+
+  // Send invitation to a member
+  // @Post('send-invite')
+  // async sendInvite(@Body('email') email: string, @Req() req: any) {
+  //   const cooperativeId = req.user.cooperativeId;
+  //   return this.cooperativeService.sendInvite(cooperativeId, email);
+  // }
 }

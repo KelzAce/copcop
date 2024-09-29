@@ -3,15 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import type { dbConfigs } from '../types/dbConfigs';
 import { User } from '../../user/entities/user.entity';
-import { KYC } from 'src/kyc/entities/kyc.entity';
-import { VirtualAccounts } from '../entities/virtual-accounts.entity';
-import { SystemWalletEntity } from '../entities/system-wallet.entity';
 import { Cooperative } from 'src/cooperative/entities/cooperative.entity';
-import { Contribution } from 'src/contributions/entities/contribution.entity';
-import { Loan } from 'src/loans/entities/loan.entity';
-import { Payment } from 'src/payments/entities/payment.entity';
-import { Member } from '../entities/member.entity';
-
 
 @Injectable()
 export class ApiConfigService {
@@ -26,14 +18,7 @@ export class ApiConfigService {
       migrations: [],
       entities: [
         Cooperative,
-        Contribution,
         User,
-        Loan,
-        Payment,
-        SystemWalletEntity,
-        VirtualAccounts,
-        KYC,
-        Member
       ],
       migrationsRun: true,
       username,
