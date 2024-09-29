@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { CreateAdminDto } from 'src/auth/dto/admin.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateAdminDto } from 'src/auth/dto/admin.dto';
 
 @ApiTags('admin')
 @Controller('admin')

@@ -15,4 +15,18 @@ export class Admin {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column('timestamp', {
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'created_at',
+  })
+  created_at: Date;
+  
+  @Column('timestamp', {
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'updated_at',
+  })
+  updated_at: Date;
 }
